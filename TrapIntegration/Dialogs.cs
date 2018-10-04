@@ -8,93 +8,54 @@ using System.Threading.Tasks;
 
 namespace TrapIntegration.App
 {
-    internal class Dialogs
-    {       
-        public int ReadN(ref int succ, int maxnumber)
+    internal static class Dialogs
+    {
+        public static bool TryRequestValue<T>(string message, Func<string, bool> validate, Func<string, T> parse, out T value)
         {
-            var n = Console.ReadLine();
-            if (ValidNumber(n) && Int32.Parse(n) <= maxnumber)
+            Console.Write(message);
+
+            string errMsg = null;
+
+            do
             {
-                succ = 1;
-                return Int32.Parse(n);
-            }
-            succ = this.AskTryAgain($"Invalid number. It should be in [1, {maxnumber}]. Try again? (y/n)");
-            return -1;
-        }
 
-        public double ReadLimit(ref int succ, bool isUpperLimit)
-        {
-            if (isUpperLimit)
-            {
-                Console.WriteLine("Please, input the upper limit");
-            }
-            else
-            {
-                Console.WriteLine("Please, input the lower limit");
-            }
-            var n = Console.ReadLine();
-            if (ValidDouble(n))
-            {
-                succ = 1;
-                return Double.Parse(n);
-            }
-            succ = this.AskTryAgain($"Invalid limit. Try again? (y/n)");
-            return -1;
-        }
+                try
+                {
+                    var str = Console.ReadLine();
+                    if (validate(str))
+                    {
+                        value = parse(str);
+                        errMsg = null;
+                    }
+                    else
+                    {
+                        errMsg = "Invalid value string";
+                        value = default(T);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errMsg = ex.Message;
+                    value = default(T);
+                }
 
-        internal void OutputSolve(double answer, int n, double error)
-        {
-            Console.WriteLine($"Number of splits:  {n}");
-            Console.WriteLine($"Answer:    {answer.ToString("F10")}");
-            Console.WriteLine($"Accuracy:  {error.ToString("F10")}");
-        }
+                if (errMsg != null)
+                {
+                    Console.WriteLine("Error: " + errMsg);
+                    Console.WriteLine("Try again? (n to cancel)");
 
-        public double ReadAccuracy(ref int succ)
-        {
-            Console.WriteLine("Please, input accuracy");
-            return this.ReadDouble(ref succ);
-        }
+                    if (Console.ReadKey().Key == ConsoleKey.N)
+                        break;
+                }
 
-        private double ReadDouble(ref int succ)
-        {
-            var d = Console.ReadLine();
-            if (ValidDouble(d))
-            {
-                succ = 1;
-                return Double.Parse(d);
-            }
-            succ = this.AskTryAgain("Invalid double. Try again? (y/n)");
-            return -1;
-        }
+            } while (errMsg != null);
 
-        internal void PrintInpuData(string function, double a, double b, double accuracy)
-        {
-            Console.WriteLine("\n\n Input data:");
-            Console.WriteLine($"\ty = : {function}");  
-            Console.WriteLine($"\taccuracy: {accuracy}");
-            Console.WriteLine($"\tUpper limit: {a}");
-            Console.WriteLine($"\tLower limit: {b}");
-        }
-
-        internal void ShowFunctions()
-        {
-            Console.WriteLine("1)     x^2");
-            Console.WriteLine("2)     2*x-4");
-            Console.WriteLine("3)     cos(x)");
-        }
-        
-        private int AskTryAgain(string massage)
-        {
-            Console.WriteLine(massage);
-            var s = Console.ReadLine();
-            if (s == "y")
-                return 2;
-            else return 0;
+            return errMsg == null;
         }
 
         public static bool ValidDouble(string number)
         {
-            Regex regex = new Regex("^[+-]?[0-9]*[,]?[0-9]+$");
+            Regex regex = new Regex("^[+-]?[0-9]*[.]?[0-9]+$");
             if (!regex.IsMatch(number))
             {
                 return false;
@@ -111,5 +72,27 @@ namespace TrapIntegration.App
             }
             return true;
         }
+
+        internal static void PrintInpuData(string function, double a, double b, double accuracy)
+        {
+            Console.WriteLine("\n\n Input data:");
+            Console.WriteLine($"\ty = : {function}");
+            Console.WriteLine($"\taccuracy: {accuracy}");
+            Console.WriteLine($"\tUpper limit: {a}");
+            Console.WriteLine($"\tLower limit: {b}");
+        }
+
+        internal static void OutputSolve(double answer, int n, double error)
+        {
+            Console.WriteLine($"Number of splits:  {n}");
+            Console.WriteLine($"Answer:    {answer.ToString("F10")}");
+            Console.WriteLine($"Accuracy:  {error.ToString("F10")}");
+        }
+
+        internal static void PrintCancellation()
+        {
+            Console.WriteLine("\nCancelled");
+        }
+        
     }
 }

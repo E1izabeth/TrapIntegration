@@ -6,35 +6,37 @@ using System.Threading.Tasks;
 
 namespace TrapIntegration
 {
-    public class Data
+    public class NumericIntegrator
     {
         public delegate double FuncDelegate(double X);
-        FuncDelegate func;
-        private double prevAnswer;
-        public double Answer;
+
+        public double Result { get; private set; }
 
         public int FuncNumber { get; private set; }
         public double A { get; private set; }
         public double B { get; private set; }
-        public int N { get; private set; }
+        public int StepsCount { get; private set; }
         public double Accuracy { get; private set; }
+        public double Error { get; private set; }
 
-        public Data(int funcNumber, double a, double b, double precision, FuncDelegate func)
+        FuncDelegate _func;
+        private double _prevResult;
+
+        public NumericIntegrator(int funcNumber, double a, double b, double precision, FuncDelegate func)
         {
             this.FuncNumber = funcNumber;
             this.A = a;
             this.B = b;
             this.Accuracy = precision;
-            this.func = func;
+
+            _func = func;
         }
 
-        public double GetError()
+        public void PerformIntegration()
         {
-            return Math.Abs(this.Answer - prevAnswer)/3;
-        }
+            this.Result = 0;
+            _prevResult = 0;
 
-        public void Solve()
-        {
             double h;
             int n = 10;
 
@@ -45,42 +47,42 @@ namespace TrapIntegration
                 {
                     if (i == 0)
                     {
-                        prevAnswer = func(this.A + i * h);
+                        _prevResult = _func(this.A + i * h);
                     }
                     else if (i < n - 1)
                     {
-                        prevAnswer += 2 * func(this.A + i * h);
+                        _prevResult += 2 * _func(this.A + i * h);
                     }
                     else
                     {
-                        prevAnswer += (func(this.A + i * h));
+                        _prevResult += _func(this.A + i * h);
                     }
                 }
-                prevAnswer = h / 2 * prevAnswer;
+                _prevResult = h / 2 * _prevResult;
                 n = n * 2;
                 h = (this.B - this.A) / n;
                 for (int i = 0; i < n; i++)
                 {
                     if (i == 0)
                     {
-                        Answer = func(this.A + i * h);
+                        this.Result = _func(this.A + i * h);
                     }
                     else if (i < n - 1)
                     {
-                        Answer += 2 * func(this.A + i * h);
+                        this.Result += 2 * _func(this.A + i * h);
                     }
                     else
                     {
-                        Answer += (func(this.A + i * h));
+                        this.Result += _func(this.A + i * h);
                     }
                 }
-                Answer = h / 2 * Answer;
-                if (Math.Abs(Answer - prevAnswer) / 3 < this.Accuracy)
+                this.Result = h / 2 * this.Result;
+                this.Error = Math.Abs(this.Result - _prevResult) / 3;
+                if (this.Error < this.Accuracy)
                 {
-                    this.N = n;
+                    this.StepsCount = n;
                     break;
                 }
-                else n = n * 2;
             }
         }
     }
