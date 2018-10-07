@@ -35,6 +35,7 @@ namespace TrapIntegration.App
                 }
                 catch (Exception ex)
                 {
+                    System.Diagnostics.Debug.Print(ex.ToString());
                     errMsg = ex.Message;
                     value = default(T);
                 }
@@ -42,9 +43,12 @@ namespace TrapIntegration.App
                 if (errMsg != null)
                 {
                     Console.WriteLine("Error: " + errMsg);
-                    Console.WriteLine("Try again? (n to cancel)");
+                    Console.Write("Try again? (n to cancel) ");
 
-                    if (Console.ReadKey().Key == ConsoleKey.N)
+                    var key = Console.ReadKey().Key;
+                    Console.WriteLine();
+
+                    if (key == ConsoleKey.N)
                         break;
                 }
 

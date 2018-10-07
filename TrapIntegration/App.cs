@@ -133,18 +133,9 @@ namespace TrapIntegration.App
                     var expr = NumExprToLinqExprTranslator.TranslateExprTree(tree);
                     functionString = tree.Apply(new NumExprStringCollector());
                     return expr.Compile();
-                }, out var f) &&
-                Dialogs.TryRequestValue("Input lower limit : ", Dialogs.ValidDouble, Double.Parse, out double a) &&
-                Dialogs.TryRequestValue("Input upper limit : ", Dialogs.ValidDouble, Double.Parse, out double b) &&
-                Dialogs.TryRequestValue("Input accuracy : ", Dialogs.ValidDouble, Double.Parse, out double accuracy))
+                }, out var f))
             {
-                var integrator = new NumericIntegrator(-1, a, b, accuracy, x => f(x));
-
-                Dialogs.PrintInpuData(functionString, a, b, accuracy);
-
-                integrator.PerformIntegration();
-
-                Dialogs.OutputSolve(integrator.Result, integrator.StepsCount, integrator.Error);
+                this.PerformIntegrationForFunction(x => f(x));
             }
             else
             {
