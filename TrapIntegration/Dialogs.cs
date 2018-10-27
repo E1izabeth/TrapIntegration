@@ -77,7 +77,7 @@ namespace TrapIntegration.App
             return true;
         }
 
-        internal static void PrintInpuData(string function, double a, double b, double accuracy)
+        internal static void PrintInputData(string function, double a, double b, double accuracy)
         {
             Console.WriteLine("\n\n Input data:");
             Console.WriteLine($"\ty = : {function}");
@@ -97,6 +97,10 @@ namespace TrapIntegration.App
         {
             Console.WriteLine("\nCancelled");
         }
-        
+
+        internal static void PrintUnsuccessfullMessage()
+        {
+            Console.WriteLine("\nCan't integrate function");
+        }
     }
 }

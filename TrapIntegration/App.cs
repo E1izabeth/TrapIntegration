@@ -23,7 +23,6 @@ namespace TrapIntegration.App
         public App()
         {
             var tuples = _functions.Select(kv => Tuple.Create(kv.Key, kv.Value)).ToArray();
-
         }
 
         static void Main(string[] args)
@@ -37,6 +36,8 @@ namespace TrapIntegration.App
                         new MenuItem("Input function", app.PerformIntegrationForCustomFunction),
                         new MenuItem("Select function") {
                             new MenuItem("x*x", () => app.PerformIntegrationForFunction(x => x*x)),
+                            new MenuItem("1/x", () => app.PerformIntegrationForFunction(x => 1/x)),
+                            new MenuItem("sqrt(x)", () => app.PerformIntegrationForFunction(x => Math.Sqrt(x))),
                             new MenuItem("3*x*x*x-8*x+4", () => app.PerformIntegrationForFunction(x => 3*x*x*x-8*x+4)),
                             new MenuItem("cos(x)", () => app.PerformIntegrationForFunction(x => Math.Cos(x)))
                         }
@@ -48,7 +49,6 @@ namespace TrapIntegration.App
 
         private void PerformIntegrationForFunction(Func<double, double> f)
         {
-            string functionString = null;
 
             if (
                 Dialogs.TryRequestValue("Input lower limit : ", Dialogs.ValidDouble, Double.Parse, out double a) &&
@@ -56,12 +56,16 @@ namespace TrapIntegration.App
                 Dialogs.TryRequestValue("Input accuracy : ", Dialogs.ValidDouble, Double.Parse, out double accuracy))
             {
                 var integrator = new NumericIntegrator(-1, a, b, accuracy, x => f(x));
+                
 
-                Dialogs.PrintInpuData(functionString, a, b, accuracy);
-
-                integrator.PerformIntegration();
-
-                Dialogs.OutputSolve(integrator.Result, integrator.StepsCount, integrator.Error);
+                if (integrator.PerformIntegration())
+                {
+                    Dialogs.OutputSolve(integrator.Result, integrator.StepsCount, integrator.Error);
+                }
+                else
+                {
+                    Dialogs.PrintUnsuccessfullMessage();
+                }
             }
             else
             {
